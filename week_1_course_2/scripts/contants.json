@@ -1,0 +1,11 @@
+{
+    "mumbai": {
+        "INIT": 1
+    },
+    "localdev": {
+        "INIT": 0
+    },
+    "hardhat": {
+        "INIT": 0
+    }
+}

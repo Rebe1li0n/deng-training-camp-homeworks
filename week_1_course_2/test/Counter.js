@@ -3,7 +3,7 @@ let counter;
 
 describe("Counter", function () {
     async function init() {
-        const [owner, caller] = await ethers.getSigners();
+        // const [owner, other] = await ethers.getSigners();
         const Counter = await ethers.getContractFactory("Counter");
         counter = await Counter.deploy();
         await counter.deployed();
@@ -23,7 +23,20 @@ describe("Counter", function () {
         let originalcounter = await counter.counter();
         let afterIncrement = await counter.increment();
         await afterIncrement.wait();
-        expect(await counter.counter()).to.equal(originalcounter + 1);
+        expect(await counter.counter()).to.equal(Number(originalcounter) + 1);
     })
 
+    it("Only onwer can call increment", async function () {
+        const [owner, other] = await ethers.getSigners();
+        await counter.connect(owner);
+        let cur = await counter.counter();
+        await counter.increment();
+        console.log(cur + '\n');
+        console.log(Number(counter.counter()));
+        expect(await counter.counter()).to.equal(Number(cur) + 1);
+        // expect(await counter.counter()).to.equal(Number(cur) + 1);
+
+        counter.connect(other);
+        expect(await counter.increment()).to.be.revertedWith("Only owner can call increment()");
+    });
 });
