@@ -2,16 +2,31 @@
 pragma solidity ^0.8.17;
 
 contract Score {
-    address public teacher;
+    address private teacher;
+    address private owner;
     mapping(address => uint8) private scores;
 
+    error notTeacher();
+    error notOwner();
+    error invalidScore();
+
     constructor(address _teacher) {
+        owner = msg.sender;
         teacher = _teacher;
     }
 
     modifier OnlyTeacher() {
-        // require(msg.sender == teacher, "You are not teacher");
+        if (msg.sender != teacher) revert notTeacher();
         _;
+    }
+
+    modifier OnlyOwner() {
+        if (msg.sender != owner) revert notOwner();
+        _;
+    }
+
+    function setTeacher(address _teacher) public OnlyOwner {
+        teacher = _teacher;
     }
 
     function checkScoreForStudent() external view returns (uint8) {
@@ -25,7 +40,8 @@ contract Score {
     }
 
     function modifyScore(address student, uint8 _scores) external OnlyTeacher {
-        require(_scores <= 100, "Invalid scores");
+        if (_scores > 100) revert invalidScore();
+        // require(_scores <= 100, "Invalid scores");
         scores[student] = _scores;
     }
 }
